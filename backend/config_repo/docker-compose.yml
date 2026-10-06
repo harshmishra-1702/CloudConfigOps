@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  app:
+    image: myapp:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"

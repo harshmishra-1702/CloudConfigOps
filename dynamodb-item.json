@@ -1,0 +1,25 @@
+{
+  "resource_id": {"S": "cloudconfig-ec2-sg"},
+  "resource_type": {"S": "AWS::EC2::SecurityGroup"},
+  "environment": {"S": "production"},
+  "allowed_ingress_rules": {
+    "L": [
+      {
+        "M": {
+          "IpProtocol": {"S": "tcp"},
+          "FromPort": {"N": "80"},
+          "ToPort": {"N": "80"},
+          "CidrIp": {"S": "0.0.0.0/0"}
+        }
+      },
+      {
+        "M": {
+          "IpProtocol": {"S": "tcp"},
+          "FromPort": {"N": "443"},
+          "ToPort": {"N": "443"},
+          "CidrIp": {"S": "0.0.0.0/0"}
+        }
+      }
+    ]
+  }
+}

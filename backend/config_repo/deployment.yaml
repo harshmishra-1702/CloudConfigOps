@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudconfig-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cloudconfig
+  template:
+    spec:
+      containers:
+      - name: app
+        image: myapp:v3.0.0
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

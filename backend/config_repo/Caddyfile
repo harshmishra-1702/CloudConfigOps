@@ -1,0 +1,8 @@
+:2015 {
+  root * /srv
+  file_server
+  reverse_proxy /api/* localhost:8080
+  log {
+    output file /var/log/caddy/access.log
+  }
+}

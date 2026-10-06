@@ -1,0 +1,15 @@
+{
+  "appName": "CloudConfig Ops",
+  "logLevel": "warn",
+  "maxRetries": 3,
+  "timeout": 30000,
+  "features": {
+    "darkMode": true,
+    "notifications": true,
+    "analytics": false
+  },
+  "cors": {
+    "origins": ["https://app.cloudconfig.ops"],
+    "credentials": true
+  }
+}

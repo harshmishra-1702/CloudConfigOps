@@ -1,0 +1,46 @@
+# Node / React (Frontend)
+node_modules/
+dist/
+build/
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+
+# Python (Backend)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Secrets & Keys (CRITICAL)
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+secret.json
+credentials.json
+
+# IDE / OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# SCM Internal
+.hg/
+config_repo/.hg/
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# Prevent accidental push of CSV credential files
+*.csv
