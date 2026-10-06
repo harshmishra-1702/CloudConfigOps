@@ -83,8 +83,11 @@ Navigate to `http://localhost:5173` in your browser.
 
 ---
 
-## 🎓 Academic Context
-This project was developed for the **Software Configuration Management (ISWE403L)** course at Vellore Institute of Technology (VIT). It practically implements core SCM standards including **CMMI Level 2**, **ITIL 4 Change Enablement**, **COBIT BAI10**, and the **SWEBOK** 5 core SCM activities.
+## 📖 SCM Standards & Methodologies
+This platform was built to practically implement core Software Configuration Management (SCM) standards, including:
+- **CMMI Level 2:** Implementing practices for identifying CIs, establishing baselines, and controlling changes.
+- **ITIL 4:** Applying Service Asset and Configuration Management along with formal Change Enablement.
+- **COBIT (BAI10):** Maintaining a controlled configuration repository with defined baselines and compliance monitoring.
+- **SWEBOK:** Automating the 5 core SCM activities (Configuration Identification, Control, Status Accounting, Auditing, and Process Management).
 
-**Developer:** Harsh Mishra (24MIS0206)  
-**Faculty:** Dr. Senthil Kumar P.
+**Developed by:** Harsh Mishra
