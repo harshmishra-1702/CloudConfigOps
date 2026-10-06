@@ -83,11 +83,17 @@ Navigate to `http://localhost:5173` in your browser.
 
 ---
 
-## 📖 SCM Standards & Methodologies
-This platform was built to practically implement core Software Configuration Management (SCM) standards, including:
+## ☁️ Cloud & SCM Methodologies
+This platform was built to practically implement enterprise Cloud Computing architectures and Software Configuration Management (SCM) principles:
+
+**Cloud Computing Architecture:**
+- **Serverless & Event-Driven:** Utilizes AWS Lambda and Amazon EventBridge for automated, cron-based drift detection without persistent compute overhead.
+- **Managed Cloud Services:** Relies on Amazon RDS for relational metadata storage and DynamoDB for high-throughput, NoSQL incident logging.
+- **Automated Alerting:** Integrates Amazon SNS for real-time, event-driven notifications on configuration drift.
+- **Secure Isolation:** Deploys backend components securely utilizing AWS IAM least-privilege roles and VPC networking boundaries.
+
+**SCM Standards:**
 - **CMMI Level 2:** Implementing practices for identifying CIs, establishing baselines, and controlling changes.
 - **ITIL 4:** Applying Service Asset and Configuration Management along with formal Change Enablement.
 - **COBIT (BAI10):** Maintaining a controlled configuration repository with defined baselines and compliance monitoring.
 - **SWEBOK:** Automating the 5 core SCM activities (Configuration Identification, Control, Status Accounting, Auditing, and Process Management).
-
-**Developed by:** Harsh Mishra
