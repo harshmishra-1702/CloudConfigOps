@@ -97,9 +97,9 @@ export default function ChangeRequests() {
       : null;
 
     return (
-      <div className="h-full flex flex-col gap-4">
+      <div className="h-full flex flex-col gap-4 overflow-y-auto pr-2 pb-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-white bg-white/5 p-1.5 rounded-md transition-colors">
               <ChevronRight size={16} className="rotate-180" />
@@ -128,7 +128,7 @@ export default function ChangeRequests() {
         </div>
 
         {/* CR Metadata */}
-        <GlassCard className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+        <GlassCard className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs shrink-0">
           <div><p className="text-gray-500 mb-1">Config File</p><p className="text-cyan-400 font-mono">{selected.configName}</p></div>
           <div><p className="text-gray-500 mb-1">Version</p><p className="text-white">v{selected.version}</p></div>
           <div><p className="text-gray-500 mb-1">Environment</p><p className="text-white capitalize">{selected.environment}</p></div>
@@ -140,7 +140,7 @@ export default function ChangeRequests() {
 
         {/* FCA Checklist */}
         {(selected.status === 'pending' || selected.status === 'reviewing') && (
-          <GlassCard className="p-4">
+          <GlassCard className="p-4 shrink-0">
             <div className="flex items-center gap-2 mb-3">
               <ShieldCheck size={16} className="text-violet-400" />
               <h3 className="text-sm font-semibold text-white">Functional Configuration Audit (FCA) Checklist</h3>
@@ -166,7 +166,7 @@ export default function ChangeRequests() {
         )}
 
         {/* Diff Viewer */}
-        <GlassCard className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <GlassCard className="flex flex-col shrink-0">
           <div className="flex items-center gap-2 p-3 border-b border-white/5 bg-black/10">
             <GitCompare size={16} className="text-violet-400" />
             <span className="text-sm font-medium text-white">Diff View</span>

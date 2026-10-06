@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Clock, CheckCircle, XCircle, Send, FileCode, AlertCircle, RotateCcw } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Clock, CheckCircle, XCircle, Send, FileCode, AlertCircle, RotateCcw, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Badge, BadgeVariant } from '../components/ui/Badge';
 import { GlowButton } from '../components/ui/GlowButton';
@@ -24,6 +24,7 @@ const statusBadgeVariant: Record<string, BadgeVariant> = {
 export default function MyRequests() {
   const { user } = useAuth();
   const { changeRequests, addChangeRequest, addAuditEntry } = useAppState();
+  const [expandedCrId, setExpandedCrId] = useState<string | null>(null);
 
   const myCRs = changeRequests.filter(cr => cr.submittedBy === user?.name);
 
@@ -102,52 +103,84 @@ export default function MyRequests() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {myCRs.map((cr, idx) => (
-                <motion.tr key={cr.id}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="hover:bg-white/5 transition-colors"
-                >
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-2">
-                      {statusIcon[cr.status]}
-                      <span className="font-mono text-xs text-gray-300">{cr.id}</span>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-0.5 max-w-[160px] truncate">{cr.commitMessage}</p>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-1.5 text-cyan-400 font-mono text-xs">
-                      <FileCode size={13} /> {cr.configName}
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-xs text-gray-400 font-mono">v{cr.version}</td>
-                  <td className="px-5 py-3 text-xs text-gray-400 capitalize">{cr.environment}</td>
-                  <td className="px-5 py-3">
-                    <Badge variant={statusBadgeVariant[cr.status]}>{cr.status}</Badge>
-                  </td>
-                  <td className="px-5 py-3 text-xs text-gray-500">{cr.submittedAt}</td>
-                  <td className="px-5 py-3 max-w-[220px]">
-                    {cr.reviewerFeedback ? (
-                      <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded p-2 leading-relaxed">
-                        <span className="font-bold block mb-1">Reviewer:</span>
-                        {cr.reviewerFeedback}
+                <React.Fragment key={cr.id}>
+                  <motion.tr
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className={`hover:bg-white/5 transition-colors ${expandedCrId === cr.id ? 'bg-white/[0.03]' : ''}`}
+                  >
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-2">
+                        {statusIcon[cr.status]}
+                        <span className="font-mono text-xs text-gray-300">{cr.id}</span>
                       </div>
-                    ) : cr.approvedBy ? (
-                      <div className="text-xs text-emerald-400 flex items-center gap-1">
-                        <CheckCircle size={12} /> Approved by {cr.approvedBy}
+                      <p className="text-xs text-gray-500 mt-0.5 max-w-[160px] truncate">{cr.commitMessage}</p>
+                    </td>
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-1.5 text-cyan-400 font-mono text-xs">
+                        <FileCode size={13} /> {cr.configName}
                       </div>
-                    ) : (
-                      <span className="text-xs text-gray-600">—</span>
+                    </td>
+                    <td className="px-5 py-3 text-xs text-gray-400 font-mono">v{cr.version}</td>
+                    <td className="px-5 py-3 text-xs text-gray-400 capitalize">{cr.environment}</td>
+                    <td className="px-5 py-3">
+                      <Badge variant={statusBadgeVariant[cr.status]}>{cr.status}</Badge>
+                    </td>
+                    <td className="px-5 py-3 text-xs text-gray-500">{cr.submittedAt}</td>
+                    <td className="px-5 py-3">
+                      {cr.reviewerFeedback ? (
+                        <button
+                          onClick={() => setExpandedCrId(expandedCrId === cr.id ? null : cr.id)}
+                          className={`flex items-center gap-1.5 text-xs transition-colors px-3 py-1.5 rounded-full border ${
+                            expandedCrId === cr.id 
+                              ? 'bg-red-500/20 text-red-300 border-red-500/30' 
+                              : 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20'
+                          }`}
+                        >
+                          <MessageSquare size={12} />
+                          {expandedCrId === cr.id ? 'Hide Feedback' : 'View Feedback'}
+                          {expandedCrId === cr.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                        </button>
+                      ) : cr.approvedBy ? (
+                        <div className="text-xs text-emerald-400 flex items-center gap-1">
+                          <CheckCircle size={12} /> Approved by {cr.approvedBy}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-600">—</span>
+                      )}
+                    </td>
+                    <td className="px-5 py-3">
+                      {cr.status === 'rejected' && (
+                        <GlowButton size="sm" variant="secondary" onClick={() => handleRework(cr.id)}>
+                          <RotateCcw size={13} className="mr-1" /> Rework
+                        </GlowButton>
+                      )}
+                    </td>
+                  </motion.tr>
+                  <AnimatePresence>
+                    {expandedCrId === cr.id && cr.reviewerFeedback && (
+                      <tr>
+                        <td colSpan={8} className="p-0 border-b border-white/5 bg-red-500/[0.02]">
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="p-4 px-5 flex items-start gap-3 border-l-2 border-red-500 m-3 bg-red-500/10 rounded-r-lg">
+                              <MessageSquare size={16} className="text-red-400 mt-0.5 shrink-0" />
+                              <div>
+                                <h4 className="text-sm font-bold text-red-400 mb-1">Reviewer Feedback</h4>
+                                <p className="text-sm text-red-200/80 leading-relaxed whitespace-pre-wrap">{cr.reviewerFeedback}</p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        </td>
+                      </tr>
                     )}
-                  </td>
-                  <td className="px-5 py-3">
-                    {cr.status === 'rejected' && (
-                      <GlowButton size="sm" variant="secondary" onClick={() => handleRework(cr.id)}>
-                        <RotateCcw size={13} className="mr-1" /> Rework
-                      </GlowButton>
-                    )}
-                  </td>
-                </motion.tr>
+                  </AnimatePresence>
+                </React.Fragment>
               ))}
             </tbody>
           </table>

@@ -56,6 +56,19 @@ export interface DriftAlert {
   expectedHash: string;
   actualHash: string;
   status: 'active' | 'resolved' | 'rolled_back';
+  baselineContent?: string;
+  driftedContent?: string;
+}
+
+export interface PcaScanResult {
+  id: string;
+  configName: string;
+  environment: string;
+  scannedAt: string;
+  result: 'pass' | 'fail';
+  expectedHash: string;
+  actualHash: string;
+  driftAlertId?: string;
 }
 
 export interface AuditEntry {
@@ -166,6 +179,27 @@ const INITIAL_CHANGE_REQUESTS: ChangeRequest[] = [
     commitMessage: 'Scale replicas from 3 to 5 for Q3 load',
     approvedBy: 'Rachel (Reviewer)', approvedAt: '6d ago', deployedAt: '5d ago',
   },
+  {
+    id: 'CR-1042', configId: 'CI-002', configName: 'nginx.conf', version: '2.1.0',
+    environment: 'production', owner: 'Ops Team', submittedBy: 'David (Developer)',
+    submittedAt: '2d ago', status: 'baselined', severity: 'critical',
+    commitMessage: 'Initial baseline for nginx production configuration',
+    approvedBy: 'Rachel (Reviewer)', approvedAt: '1d ago', deployedAt: '1d ago',
+  },
+  {
+    id: 'CR-1040', configId: 'CI-001', configName: '.env.production', version: '1.4.2',
+    environment: 'production', owner: 'David (Developer)', submittedBy: 'David (Developer)',
+    submittedAt: '4d ago', status: 'baselined', severity: 'high',
+    commitMessage: 'Update redis connection string for prod cache',
+    approvedBy: 'Rachel (Reviewer)', approvedAt: '3d ago', deployedAt: '3d ago',
+  },
+  {
+    id: 'CR-1038', configId: 'CI-006', configName: 'config.json', version: '2.0.1',
+    environment: 'production', owner: 'David (Developer)', submittedBy: 'David (Developer)',
+    submittedAt: '1w ago', status: 'approved', severity: 'low',
+    commitMessage: 'Disable analytics feature toggle',
+    approvedBy: 'Rachel (Reviewer)', approvedAt: '6d ago',
+  },
 ];
 
 const INITIAL_DRIFT_ALERTS: DriftAlert[] = [
@@ -173,13 +207,64 @@ const INITIAL_DRIFT_ALERTS: DriftAlert[] = [
     id: 'DA-001', configId: 'CI-002', configName: 'nginx.conf', environment: 'production',
     detectedAt: '5 mins ago', severity: 'critical',
     expectedHash: 'sha256:deadbeef1234', actualHash: 'sha256:cafebabe9999',
-    status: 'active'
+    status: 'active',
+    baselineContent: 'server {\n    listen 80;\n    server_name api.example.com;\n    worker_processes 2;\n\n    location / {\n        proxy_pass http://localhost:8080;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    }\n}',
+    driftedContent: 'server {\n    listen 80;\n    server_name api.example.com;\n    worker_processes 8;\n\n    location / {\n        proxy_pass http://localhost:9090;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n    }\n    location /debug {\n        proxy_pass http://localhost:9999;\n    }\n}',
   },
   {
     id: 'DA-002', configId: 'CI-001', configName: '.env.production', environment: 'production',
     detectedAt: '2 hours ago', severity: 'high',
     expectedHash: 'sha256:a1b2c3d4e5f6', actualHash: 'sha256:999aaa111bbb',
-    status: 'active'
+    status: 'active',
+    baselineContent: 'NODE_ENV=production\nPORT=8080\nDB_HOST=db-prod.internal\nDB_USER=admin\nDB_PASS=super_secret_123\nJWT_SECRET=jwt_prod_key_xyz\nREDIS_URL=redis://cache.internal:6379',
+    driftedContent: 'NODE_ENV=production\nPORT=8080\nDB_HOST=db-prod.internal\nDB_USER=admin\nDB_PASS=hacked_password_123\nJWT_SECRET=jwt_prod_key_xyz\nREDIS_URL=redis://cache.internal:6379\nDEBUG=true\nADMIN_BACKDOOR=enabled',
+  },
+];
+
+const INITIAL_PCA_SCANS: PcaScanResult[] = [
+  {
+    id: 'PCA-008', configName: 'application.properties', environment: 'testing',
+    scannedAt: '12 mins ago', result: 'fail',
+    expectedHash: 'sha256:11223344aabb', actualHash: 'sha256:hackedprop4567',
+    driftAlertId: 'DA-003',
+  },
+  {
+    id: 'PCA-007', configName: 'prometheus.yml', environment: 'production',
+    scannedAt: '1 hour ago', result: 'fail',
+    expectedHash: 'sha256:prom11223344', actualHash: 'sha256:malicious9999',
+    driftAlertId: 'DA-004',
+  },
+  {
+    id: 'PCA-006', configName: 'nginx.conf', environment: 'production',
+    scannedAt: '5 mins ago', result: 'fail',
+    expectedHash: 'sha256:deadbeef1234', actualHash: 'sha256:cafebabe9999',
+    driftAlertId: 'DA-001',
+  },
+  {
+    id: 'PCA-005', configName: '.env.production', environment: 'production',
+    scannedAt: '2 hours ago', result: 'fail',
+    expectedHash: 'sha256:a1b2c3d4e5f6', actualHash: 'sha256:999aaa111bbb',
+    driftAlertId: 'DA-002',
+  },
+  {
+    id: 'PCA-004', configName: 'deployment.yaml', environment: 'production',
+    scannedAt: '3 hours ago', result: 'pass',
+    expectedHash: 'sha256:99887766aabb', actualHash: 'sha256:99887766aabb',
+  },
+  {
+    id: 'PCA-003', configName: 'config.json', environment: 'production',
+    scannedAt: '3 hours ago', result: 'pass',
+    expectedHash: 'sha256:ff11ee22dd33', actualHash: 'sha256:ff11ee22dd33',
+  },
+  {
+    id: 'PCA-002', configName: 'prometheus.yml', environment: 'production',
+    scannedAt: '6 hours ago', result: 'pass',
+    expectedHash: 'sha256:prom11223344', actualHash: 'sha256:prom11223344',
+  },
+  {
+    id: 'PCA-001', configName: '.env.staging', environment: 'testing',
+    scannedAt: '6 hours ago', result: 'pass',
+    expectedHash: 'sha256:aabb11223344', actualHash: 'sha256:aabb11223344',
   },
 ];
 
@@ -199,12 +284,14 @@ interface AppState {
   changeRequests: ChangeRequest[];
   driftAlerts: DriftAlert[];
   auditLog: AuditEntry[];
+  pcaScans: PcaScanResult[];
   updateChangeRequest: (id: string, updates: Partial<ChangeRequest>) => void;
   addChangeRequest: (cr: ChangeRequest) => void;
   addAuditEntry: (entry: AuditEntry) => void;
   resolveDriftAlert: (id: string) => void;
   rollbackConfig: (alertId: string) => void;
   updateConfigItem: (id: string, updates: Partial<ConfigItem>) => void;
+  addPcaScan: (scan: PcaScanResult) => void;
 }
 
 interface AuthContextType {
@@ -222,6 +309,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>(INITIAL_CHANGE_REQUESTS);
   const [driftAlerts, setDriftAlerts] = useState<DriftAlert[]>(INITIAL_DRIFT_ALERTS);
   const [auditLog, setAuditLog] = useState<AuditEntry[]>(INITIAL_AUDIT_LOG);
+  const [pcaScans, setPcaScans] = useState<PcaScanResult[]>(INITIAL_PCA_SCANS);
 
   const login = (role: Role) => {
     const users: Record<Role, User> = {
@@ -258,11 +346,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setConfigItems(prev => prev.map(ci => ci.id === id ? { ...ci, ...updates } : ci));
   };
 
+  const addPcaScan = (scan: PcaScanResult) => {
+    setPcaScans(prev => [scan, ...prev]);
+  };
+
   return (
     <AuthContext.Provider value={{ user, login, logout }}>
       <AppStateContext.Provider value={{
-        configItems, changeRequests, driftAlerts, auditLog,
-        updateChangeRequest, addChangeRequest, addAuditEntry, resolveDriftAlert, rollbackConfig, updateConfigItem
+        configItems, changeRequests, driftAlerts, auditLog, pcaScans,
+        updateChangeRequest, addChangeRequest, addAuditEntry, resolveDriftAlert, rollbackConfig, updateConfigItem, addPcaScan
       }}>
         {children}
       </AppStateContext.Provider>

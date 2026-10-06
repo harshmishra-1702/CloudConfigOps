@@ -5,7 +5,7 @@ import {
   Shield, LayoutDashboard, FileCode2, GitPullRequest,
   Search, Bell, Settings as SettingsIcon, History,
   AlertTriangle, ShieldAlert, CheckSquare, Code,
-  X, LogOut, Clock, ListChecks
+  X, LogOut, Clock, ListChecks, Menu
 } from 'lucide-react';
 
 import Dashboard from './pages/Dashboard';
@@ -36,6 +36,8 @@ function AppLayout() {
   const navigate = useNavigate();
   const notifRef = useRef<HTMLDivElement>(null);
   const [notifOpen, setNotifOpen] = useState(false);
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const activeDriftCount = driftAlerts.filter(a => a.status === 'active').length;
 
@@ -76,26 +78,30 @@ function AppLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* ─── Sidebar ─── */}
-      <div className="w-[260px] bg-[#0d0d13] border-r border-white/5 flex flex-col z-20 h-full fixed left-0 top-0">
+      <div className={cn('bg-[#0d0d13] border-r border-white/5 flex flex-col z-20 h-full fixed left-0 top-0 transition-all duration-300', isSidebarCollapsed ? 'w-[80px]' : 'w-[260px]')}>
         {/* Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-white/10 gap-3 shrink-0">
-          <div className="bg-cyan-500/20 p-2 rounded-lg text-cyan-400">
+        <div className={cn('h-16 flex items-center border-b border-white/10 shrink-0', isSidebarCollapsed ? 'justify-center px-0' : 'px-6 gap-3')}>
+          <div className="bg-cyan-500/20 p-2 rounded-lg text-cyan-400 shrink-0">
             <Shield size={22} />
           </div>
-          <div className="flex flex-col leading-tight">
-            <span className="font-bold text-sm tracking-wide text-white">Cloud<span className="text-cyan-400">Config</span></span>
-            <span className="text-[10px] font-medium text-gray-500 tracking-widest uppercase">Ops Platform</span>
-          </div>
+          {!isSidebarCollapsed && (
+            <div className="flex flex-col leading-tight overflow-hidden">
+              <span className="font-bold text-sm tracking-wide text-white whitespace-nowrap">Cloud<span className="text-cyan-400">Config</span></span>
+              <span className="text-[10px] font-medium text-gray-500 tracking-widest uppercase whitespace-nowrap">Ops Platform</span>
+            </div>
+          )}
         </div>
 
         {/* Role badge */}
-        <div className={cn('mx-4 mt-4 mb-2 px-3 py-2 rounded-lg flex items-center gap-2', roleBg[user.role])}>
+        <div className={cn('mx-4 mt-4 mb-2 rounded-lg flex items-center justify-center transition-all', roleBg[user.role], isSidebarCollapsed ? 'p-2 mx-2' : 'px-3 py-2 gap-2')}>
           {user.role === 'admin' && <LayoutDashboard size={14} className={roleColor[user.role]} />}
           {user.role === 'reviewer' && <CheckSquare size={14} className={roleColor[user.role]} />}
           {user.role === 'developer' && <Code size={14} className={roleColor[user.role]} />}
-          <span className={cn('text-xs font-semibold uppercase tracking-widest', roleColor[user.role])}>
-            {user.role === 'admin' ? 'Ops / Admin' : user.role}
-          </span>
+          {!isSidebarCollapsed && (
+            <span className={cn('text-xs font-semibold uppercase tracking-widest', roleColor[user.role])}>
+              {user.role === 'admin' ? 'Ops / Admin' : user.role}
+            </span>
+          )}
         </div>
 
         {/* Nav */}
@@ -106,15 +112,17 @@ function AppLayout() {
               <NavLink
                 key={link.name}
                 to={link.path}
+                title={isSidebarCollapsed ? link.name : undefined}
                 className={({ isActive }) => cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium',
+                  'flex items-center rounded-lg transition-all duration-200 text-sm font-medium',
+                  isSidebarCollapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5',
                   isActive ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
                 )}
               >
                 {({ isActive }) => (
                   <>
                     <Icon size={18} className={isActive ? 'text-cyan-400' : ''} />
-                    <span>{link.name}</span>
+                    {!isSidebarCollapsed && <span className="whitespace-nowrap">{link.name}</span>}
                   </>
                 )}
               </NavLink>
@@ -123,15 +131,17 @@ function AppLayout() {
         </nav>
 
         {/* User info */}
-        <div className="p-4 border-t border-white/10 shrink-0">
-          <div className="flex items-center gap-3 px-3 py-2 bg-white/[0.03] rounded-lg border border-white/5">
-            <div className={cn('w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs', roleBg[user.role])}>
+        <div className={cn('p-4 border-t border-white/10 shrink-0', isSidebarCollapsed ? 'p-2' : 'p-4')}>
+          <div className={cn('flex items-center bg-white/[0.03] rounded-lg border border-white/5', isSidebarCollapsed ? 'p-2 justify-center flex-col gap-2' : 'px-3 py-2 gap-3')}>
+            <div className={cn('w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0', roleBg[user.role])}>
               <span className={roleColor[user.role]}>{user.avatar}</span>
             </div>
-            <div className="flex flex-col flex-1 min-w-0">
-              <span className="text-xs font-medium text-gray-200 truncate">{user.name}</span>
-              <span className="text-[10px] text-gray-500 truncate">{user.email}</span>
-            </div>
+            {!isSidebarCollapsed && (
+              <div className="flex flex-col flex-1 min-w-0">
+                <span className="text-xs font-medium text-gray-200 truncate">{user.name}</span>
+                <span className="text-[10px] text-gray-500 truncate">{user.email}</span>
+              </div>
+            )}
             <button onClick={handleLogout} className="text-gray-600 hover:text-red-400 transition-colors" title="Logout">
               <LogOut size={15} />
             </button>
@@ -140,16 +150,24 @@ function AppLayout() {
       </div>
 
       {/* ─── Main Content ─── */}
-      <div className="flex-1 ml-[260px] flex flex-col h-full overflow-hidden">
+      <div className={cn('flex-1 flex flex-col h-full overflow-hidden transition-all duration-300', isSidebarCollapsed ? 'ml-[80px]' : 'ml-[260px]')}>
         {/* TopBar */}
         <header className="h-14 bg-[#0d0d13]/80 backdrop-blur border-b border-white/5 flex items-center justify-between px-6 z-30 sticky top-0 shrink-0">
-          <div className="flex items-center relative w-80">
-            <Search className="absolute left-3 text-gray-500" size={15} />
-            <input
-              type="text"
-              placeholder="Search configs, requests, alerts..."
-              className="w-full bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-xs text-gray-200 focus:outline-none focus:border-cyan-500/50 transition-colors"
-            />
+          <div className="flex items-center gap-4 relative">
+            <button 
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Menu size={20} />
+            </button>
+            <div className="relative w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={15} />
+              <input
+                type="text"
+                placeholder="Search configs, requests, alerts..."
+                className="w-full bg-white/5 border border-white/10 rounded-full py-1.5 pl-9 pr-4 text-xs text-gray-200 focus:outline-none focus:border-cyan-500/50 transition-colors"
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-2" ref={notifRef}>

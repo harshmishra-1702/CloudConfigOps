@@ -1,8 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = 'postgresql+asyncpg://cloudguard:cloudguard@localhost:5432/cloudguard'
-    SECRET_KEY: str = 'cloudguard-secret-key-change-in-production'
+    DATABASE_URL: str = 'postgresql+asyncpg://cloudconfig:cloudconfig@localhost:5432/cloudconfig'
+    SECRET_KEY: str = 'cloudconfig-secret-key-change-in-production'
     ALGORITHM: str = 'HS256'
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
     MERCURIAL_REPO_PATH: str = './config_repo'

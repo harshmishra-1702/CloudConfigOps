@@ -37,7 +37,7 @@ class MercurialSCM:
             return {'success': True, 'message': f'Added {file_path}'}
         return {'success': False, 'error': stderr}
     
-    def commit(self, message: str, user: str = 'CloudGuard') -> dict:
+    def commit(self, message: str, user: str = 'CloudConfig Ops') -> dict:
         """Commit changes."""
         stdout, stderr, code = self._run_command(['hg', 'commit', '-m', message, '-u', user])
         if code == 0:

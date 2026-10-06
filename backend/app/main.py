@@ -8,7 +8,7 @@ from app.core.database import init_db
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title='CloudGuard API')
+app = FastAPI(title='CloudConfig Ops API')
 
 # CORS middleware allowing all origins (dev)
 app.add_middleware(
@@ -28,7 +28,7 @@ app.include_router(dashboard.router, prefix='/api/dashboard', tags=['dashboard']
 
 @app.on_event('startup')
 async def startup_event():
-    logger.info('CloudGuard API started')
+    logger.info('CloudConfig Ops API started')
     await init_db()
 
 @app.get('/api/health')
