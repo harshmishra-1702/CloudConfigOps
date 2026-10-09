@@ -103,6 +103,27 @@ async def approve_change_request(
     cr.reviewer_id = current_user.id
     
     await db.commit()
+
+    # Automatically archive approved baseline to Amazon S3 & sync hash to DynamoDB
+    try:
+        from app.services.aws_storage import aws_storage
+        ci_res = await db.execute(select(ConfigItem).where(ConfigItem.id == cr.config_item_id))
+        ci = ci_res.scalars().first()
+        if ci:
+            aws_storage.upload_approved_baseline(
+                config_name=ci.name,
+                content=ci.content,
+                version=ci.version,
+                environment=ci.environment,
+                metadata={
+                    'cr_id': f'CR-{cr.id}',
+                    'approved_by': current_user.email,
+                    'comment': action.comment
+                }
+            )
+    except Exception as e:
+        pass
+
     return await get_change_request(id, db, current_user)
 
 @router.post('/{id}/reject', response_model=ChangeRequestResponse)
